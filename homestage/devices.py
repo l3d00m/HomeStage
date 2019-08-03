@@ -21,3 +21,7 @@ class MovingHeadLight(DMXDevice):
 
 class LEDWash(DMXDevice):
     mapping = ['brightness', 'r', 'g', 'b', 'strobe', 'control', 'speed']
+
+
+class MQTTLight(DMXDevice):
+    mapping = ['brightness', 'r', 'g', 'b']

@@ -1,7 +1,7 @@
-import itertools
 import logging
 import threading
 from typing import Optional
+from homestage import mqtt
 
 import aubio
 
@@ -15,20 +15,16 @@ class AudioState:
     media = Media()
     current_tempo = 0
 
-    def __init__(self, mic, sample_rate=44100, fft_size=1024, block_size=512):
+    def __init__(self, mic, sample_rate=44100, fft_size=1024):
         self.mic = mic
         self.sample_rate = sample_rate
         self.fft_size = fft_size
-        self.block_size = block_size
-        self.tempo = aubio.tempo("default", self.fft_size, self.block_size, self.sample_rate)
+        self.hop_size = self.fft_size // 2
+        self.tempo = aubio.tempo("default", self.fft_size, self.hop_size, self.sample_rate)
+        self.current_tempo = 0
         self.beat = False
         self.enabled = False
-
-    def reset(self, media: Media):
-        self.media = media
-        logger.info(f"Media change ({media.title}) - danceability: {media.analysis.danceability}, "
-                    f"energy: {media.analysis.energy}, "
-                    f"valence: {media.analysis.valence}")
+        self.index = False
 
     def start(self):
         threading.Thread(target=self._run).start()
@@ -36,11 +32,13 @@ class AudioState:
     def _run(self):
         with self.mic.recorder(samplerate=self.sample_rate, channels=1) as mic:
             while True:
-                signal = mic.record(numframes=self.block_size)
+                signal = mic.record(numframes=self.hop_size)
                 if self.enabled:
                     signal = signal.flatten().astype('float32', casting='same_kind')
                     self.beat = self.tempo(signal)[0] > 0
                     self.current_tempo = self.tempo.get_bpm()
+                    if self.beat:
+                        self.index ^= True
 
 
 class PatternController:
@@ -56,6 +54,7 @@ class PatternController:
             lambda: DualToneResponseFastSweep(self.state),
             lambda: RainbowSweep(self.state),
             lambda: MellowSweep(self.state),
+            lambda: BrightnessSweep(self.state),
         ]
 
     def get_pattern(self, media) -> Pattern:
@@ -82,13 +81,13 @@ class PatternController:
 
 
 class HomeStage:
-    def __init__(self, devices, sender, state: AudioState):
+    def __init__(self, devices, state: AudioState):
         self.devices = devices
-        self.sender = sender
         self.state = state
         self.controller = PatternController(state)
         self.lock = threading.RLock()
         self._enabled = False
+        self.last_index = False
 
     def start(self):
         self.enabled = True
@@ -105,20 +104,22 @@ class HomeStage:
                 logger.info("Output enabled")
                 self._enabled = True
                 self.state.enabled = self._enabled
-                self.sender.start()
 
             if not enabled and self._enabled:
                 logger.info("Output disableds")
                 self._enabled = False
                 self.state.enabled = self._enabled
-                self.sender.stop()
 
     def run(self):
         while True:
             if self.enabled:
-                pattern = self.controller.get_pattern(self.state.media)
-                pattern.update(self.devices)
-                self.sender[1].dmx_data = tuple(itertools.chain(*[d.values for d in self.devices]))
-                time.sleep(0.01)
+                if self.last_index is not self.state.index:
+                    self.last_index = self.state.index
+                    print("beat recognize")
+                    pattern = self.controller.get_pattern(self.state.media)
+                    pattern.update(self.devices)
+                    for device in self.devices:
+                        mqtt.update(device)
+                time.sleep(0.001)
             else:
                 time.sleep(1)
