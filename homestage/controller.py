@@ -115,15 +115,19 @@ class HomeStage:
                 logger.info("Output disabled")
                 self._enabled = False
                 self.state.enabled = self._enabled
+                # reset brightness level
+                for device in self.devices:
+                    device.brightness = 255
+                    self.mqtt_controller.update(device)
 
     def run(self):
         while True:
+            # Set enabled state based on MQTT
+            self.enabled = self.mqtt_controller.enabled
             if self.enabled:
                 # only do logic if a new part was analyzed by aubio (and a new beat was detected)
                 if self.last_index is not self.state.index:
                     self.last_index = self.state.index
-                    # Set enabled state based on MQTT
-                    self.enabled = self.mqtt_controller.enabled
                     # get current pattern (changes on song change)
                     pattern = self.controller.get_pattern(self.state.media)
                     # use the pattern to update the device state
