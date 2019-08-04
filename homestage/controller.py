@@ -50,14 +50,14 @@ class PatternController:
 
     def __init__(self, state: AudioState):
         self.state = state
-        self.pattern = RainbowSweep(state)
+        self.pattern = RainbowSweep()
         self.media = Media()
         self.section = None
         self.bank = [
-            lambda: DualToneResponseFastSweep(self.state),
-            lambda: RainbowSweep(self.state),
-            lambda: MellowSweep(self.state),
-            lambda: BrightnessSweep(self.state),
+            lambda: DualToneResponseFastSweep(),
+            lambda: RainbowSweep(),
+            lambda: MellowSweep(),
+            lambda: Blink(),
         ]
 
     def get_pattern(self, media) -> Pattern:

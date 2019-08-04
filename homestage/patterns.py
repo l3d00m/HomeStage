@@ -11,8 +11,7 @@ class Pattern:
 
 
 class DualToneResponseFastSweep(Pattern):
-    def __init__(self, state):
-        self.state = state
+    def __init__(self):
         self.color = hsv_to_rgb(math.sin(time.time() * 5) * 0.5 + 0.5, 1, 1)
         self.colors = [hsv_to_rgb(random.random(), 1, 1), hsv_to_rgb(random.random(), 1, 1)]
         self.color_index = 0
@@ -32,14 +31,17 @@ class DualToneResponseFastSweep(Pattern):
 
 
 class RainbowSweep(Pattern):
-    def __init__(self, state):
-        self.state = state
+    def __init__(self):
         self.last_pulse = 0
         self.index = 0
+        self.incrementor = 0.08
 
     def update(self, devices):
-        self.index += random.random() * 0.2 + 0.4
-        color = hsv_to_rgb(math.sin(self.index) / 2 + 0.5, 1, 1)
+        self.index += self.incrementor
+        if self.index > 1:
+            self.index -= 1
+
+        color = hsv_to_rgb(self.index, 1, 1)
 
         for device in devices:
             device.r = int(255 * color[0])
@@ -50,8 +52,7 @@ class RainbowSweep(Pattern):
 
 
 class MellowSweep(Pattern):
-    def __init__(self, state):
-        self.state = state
+    def __init__(self, ):
         self.color = hsv_to_rgb(math.sin(time.time() * 5) * 0.5 + 0.5, 1, 1)
         self.colors = [hsv_to_rgb(random.random(), 1, 1), hsv_to_rgb(random.random(), 1, 1)]
         self.color_index = 0
@@ -70,9 +71,8 @@ class MellowSweep(Pattern):
         return False
 
 
-class BrightnessSweep(Pattern):
-    def __init__(self, state):
-        self.state = state
+class Blink(Pattern):
+    def __init__(self):
         self.brightness = False
 
     def update(self, devices):
