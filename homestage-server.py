@@ -7,7 +7,7 @@ from homestage.mqtt import MqttController
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG,
+    logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s.%(msecs)03d (%(levelname)s) [%(name)s] %(message)s",
                         datefmt="%H:%M:%S")
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
