@@ -1,12 +1,11 @@
 import soundcard as sc
-from homestage.devices import MQTTLight
+from homestage.devices import MqttLight
 
-device = MQTTLight()
+device = MqttLight("led-kueche/rgb/set", "led-kueche/brightness/set")
 DEVICES = [device]
 
 MQTT_BROKER_HOSTNAME = "192.168.0.40"
 MQTT_BROKER_PORT = 1883
-
 
 RECORDING_DEVICE = None
 mics = sc.all_microphones(include_loopback=True)

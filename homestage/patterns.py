@@ -24,12 +24,10 @@ class DualToneResponseFastSweep(Pattern):
             self.color_index = 0
 
         for device in devices:
-            device.pan = int((math.sin(time.time() / 1) * 255 / 2 + 255 / 2))
-            device.tilt = int((math.sin(time.time() / 1) * 255 / 2 + 255 / 2))
             device.r = int(255 * self.color[0])
             device.g = int(255 * self.color[1])
             device.b = int(255 * self.color[2])
-
+            device.brightness = -1
         return False
 
 
@@ -44,12 +42,10 @@ class RainbowSweep(Pattern):
         color = hsv_to_rgb(math.sin(self.index) / 2 + 0.5, 1, 1)
 
         for device in devices:
-            device.pan = int((math.sin(time.time() / 1) * 255 / 2 + 255 / 2))
-            device.tilt = int((math.sin(time.time() / 1) * 255 / 2 + 255 / 2))
             device.r = int(255 * color[0])
             device.g = int(255 * color[1])
             device.b = int(255 * color[2])
-
+            device.brightness = -1
         return False
 
 
@@ -67,11 +63,10 @@ class MellowSweep(Pattern):
             self.color_index = 0
 
         for device in devices:
-            device.pan = int(time.time() * 25 % 255)
-            device.tilt = 20
             device.r = int(255 * self.color[0])
             device.g = int(255 * self.color[1])
             device.b = int(255 * self.color[2])
+            device.brightness = -1
         return False
 
 
@@ -85,5 +80,6 @@ class BrightnessSweep(Pattern):
 
         for device in devices:
             device.brightness = int(255 * self.brightness)
+            device.r = -1
 
         return False

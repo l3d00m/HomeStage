@@ -1,27 +1,8 @@
-class DMXDevice:
-    mapping = []
-
-    def __new__(cls):
-        o = super().__new__(cls)
-        for key in o.mapping:
-            if not hasattr(o, key):
-                setattr(o, key, 0)
-        return o
-
-    @property
-    def values(self):
-        return [getattr(self, k) for k in self.mapping]
-
-
-class MovingHeadLight(DMXDevice):
-    mapping = ['pan', 'pan_fine', 'tilt', 'tilt_fine', 'move_speed', 'level', 'r', 'g', 'b', 'w', 'color_preset',
-               'color_cycle_speed', 'control', 'reset']
-    level = 134
-
-
-class LEDWash(DMXDevice):
-    mapping = ['brightness', 'r', 'g', 'b', 'strobe', 'control', 'speed']
-
-
-class MQTTLight(DMXDevice):
-    mapping = ['brightness', 'r', 'g', 'b']
+class MqttLight:
+    def __init__(self, rgb_topic, brightness_topic):
+        self.rgb_topic = rgb_topic
+        self.brightness_topic = brightness_topic
+        self.r = -1
+        self.g = -1
+        self.b = -1
+        self.brightness = -1

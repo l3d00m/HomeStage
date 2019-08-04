@@ -1,12 +1,10 @@
 import logging
 import threading
 from typing import Optional
-from homestage import mqtt
 
 import aubio
 
 from homestage.model import Media, Section
-from homestage.devices import MQTTLight
 from homestage.patterns import *
 
 logger = logging.getLogger(__name__)
@@ -86,11 +84,13 @@ class PatternController:
         return self.pattern
 
 
+# noinspection PyAttributeOutsideInit
 class HomeStage:
-    def __init__(self, devices, state: AudioState):
+    def __init__(self, devices, mqtt_controller, state: AudioState):
         self.devices = devices
         self.state = state
         self.controller = PatternController(state)
+        self.mqtt_controller = mqtt_controller
         self.lock = threading.RLock()
         self._enabled = False
         self.last_index = False
@@ -112,7 +112,7 @@ class HomeStage:
                 self.state.enabled = self._enabled
 
             if not enabled and self._enabled:
-                logger.info("Output disableds")
+                logger.info("Output disabled")
                 self._enabled = False
                 self.state.enabled = self._enabled
 
@@ -122,18 +122,15 @@ class HomeStage:
                 # only do logic if a new part was analyzed by aubio (and a new beat was detected)
                 if self.last_index is not self.state.index:
                     self.last_index = self.state.index
+                    # Set enabled state based on MQTT
+                    self.enabled = self.mqtt_controller.enabled
                     # get current pattern (changes on song change)
                     pattern = self.controller.get_pattern(self.state.media)
                     # use the pattern to update the device state
                     pattern.update(self.devices)
                     # update the devices depending on their type
                     for device in self.devices:
-                        if isinstance(device, MQTTLight):
-                            # update mqtt devices
-                            mqtt.update(device)
-                        else:
-                            # not implemented here
-                            pass
+                        self.mqtt_controller.update(device)
                 # sleep for a short amount to allow the other thread being executed
                 time.sleep(0.001)
             else:
