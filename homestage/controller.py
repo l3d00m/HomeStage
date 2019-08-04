@@ -62,24 +62,24 @@ class PatternController:
 
     def get_pattern(self, media) -> Pattern:
         # make the pattern random when the song changes
-        position = media.position
-        change = False
-
-        if self.media != media:
-            self.media = media
-            change = True
-
-        if position:
-            section = media.analysis.sections.at(position)
-            if self.section != section:
-                self.section = section
-                change = True
-        else:
-            self.section = None
-
-        if change:
-            self.pattern = random.choice(self.bank)()
-            logger.info("Change of pattern triggered")
+        # position = media.position
+        # change = False
+        #
+        # if self.media != media:
+        #     self.media = media
+        #     change = True
+        #
+        # if position:
+        #     section = media.analysis.sections.at(position)
+        #     if self.section != section:
+        #         self.section = section
+        #         change = True
+        # else:
+        #     self.section = None
+        #
+        # if change:
+        #     self.pattern = random.choice(self.bank)()
+        #     logger.info("Change of pattern triggered")
 
         return self.pattern
 
@@ -116,9 +116,9 @@ class HomeStage:
                 self._enabled = False
                 self.state.enabled = self._enabled
                 # reset brightness level
-                for device in self.devices:
-                    device.brightness = 255
-                    self.mqtt_controller.update(device)
+                # for device in self.devices:
+                #     device.brightness = 255
+                #     self.mqtt_controller.update(device)
 
     def run(self):
         while True:
