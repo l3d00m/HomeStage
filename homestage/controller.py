@@ -124,18 +124,17 @@ class HomeStage:
         while True:
             # Set enabled state based on MQTT
             self.enabled = self.mqtt_controller.enabled
-            if self.enabled:
-                # only do logic if a new part was analyzed by aubio (and a new beat was detected)
-                if self.last_index is not self.state.index:
-                    self.last_index = self.state.index
-                    # get current pattern (changes on song change)
-                    pattern = self.controller.get_pattern(self.state.media)
-                    # use the pattern to update the device state
-                    pattern.update(self.devices)
+            # only do logic if a new part was analyzed by aubio (and a new beat was detected)
+            if self.last_index is not self.state.index:
+                self.last_index = self.state.index
+                # get current pattern (changes on song change)
+                pattern = self.controller.get_pattern(self.state.media)
+                # use the pattern to update the device state
+                pattern.update(self.devices)
+                # only update when enabled so the beat detection works as soon as it is enabled because it still analyzes in bg
+                if self.enabled:
                     # update the devices depending on their type
                     for device in self.devices:
                         self.mqtt_controller.update(device)
-                # sleep for a short amount to allow the other thread being executed
-                time.sleep(0.001)
-            else:
-                time.sleep(0.5)
+            # sleep for a short amount to allow the other thread being executed
+            time.sleep(0.001)
