@@ -2,7 +2,10 @@ import soundcard as sc
 from homestage.devices import MqttLight
 
 device = MqttLight("led-kueche/rgb/set", "led-kueche/brightness/set")
-DEVICES = [device]
+device2 = MqttLight("led-bett-thomas/rgb/set", "led-bett-thomas/brightness/set")
+device3 = MqttLight("led-thomas-tisch/rgb/set", "led-thomas-tisch/brightness/set")
+
+DEVICES = [device, device2, device3]
 
 MQTT_BROKER_HOSTNAME = "192.168.0.40"
 MQTT_BROKER_PORT = 1883

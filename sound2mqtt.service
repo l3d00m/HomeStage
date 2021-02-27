@@ -1,7 +1,8 @@
 [Unit]
 Description=Sound to MQTT service
-Wants=network-online.target
-After=network-online.target
+After=network-online.target sound.target
+Requires=network-online.target
+Wants=avahi-daemon.service
 
 [Service]
 Environment=PYTHONUNBUFFERED=1
@@ -10,6 +11,8 @@ ExecStart=/home/pi/HomeStage/homestage-server.py
 Restart=always
 RestartSec=2
 RuntimeMaxSec=43200
+User=pi
+Group=audio
 
 [Install]
 WantedBy=multi-user.target

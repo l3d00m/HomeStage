@@ -42,6 +42,7 @@ class AudioState:
                     if self.beat:
                         # this variable will be polled further down
                         self.index ^= True
+                        print("beat")
 
 
 class PatternController:

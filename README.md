@@ -20,13 +20,19 @@ I'm also directly relying on the beat detection by `aubio` because using the tem
 
 You need Python 3.6+ on the raspberry, which is only shipped with Raspbian Buster (and higher). Make sure to update the raspberry.
 
-1. Install dependencies using pipenv.
+1. Install dependencies using pip: `pip3 install -r requirements.txt`
 2. Run `./homestage-server.py`
-3. Modify `config.py` according to your needs, especially the MQTT server address and the MQTT brightness and RGB topics for the lights.
+3. Modify `config.py` according to your needs, especially the MQTT server address and the MQTT brightness and RGB topics for the lights. *If you are using espurna and a 4CH-LED (RGBW), enable Use White Channel in the light settings for better results*
 
 ### Setup pulseaudio on the raspberry
 
-For the used library `soundcard` to work, you have to setup pulseaudio, which is not used by default on the raspberry. Here's a tutorial: https://raspberrypi.stackexchange.com/a/1544/74905
+For the used library `soundcard` to work, you have to setup pulseaudio, which is not used by default on the raspberry. Here's how:
 
-I'm also using [snapcast](https://github.com/xoseperez/espurna), for which I had to put pulseaudio in system mode. That's the tutorial I used for that: https://rudd-o.com/linux-and-free-software/how-to-make-pulseaudio-run-once-at-boot-for-all-your-users
+1. `sudo apt-get install pulseaudio pulseaudio-module-zeroconf alsa-utils avahi-daemon`
+2. `sudo modprobe snd-bcm2835`
+3. `sudo reboot`
 
+I'm also using [snapcast](https://github.com/xoseperez/espurna), for which I had to put pulseaudio in system mode. That's the tutorial I used for that: https://rudd-o.com/linux-and-free-software/how-to-make-pulseaudio-run-once-at-boot-for-all-your-users  
+I had to modify `Exec` with `ExecStart` in the systemd-file from that tutorial. Also do `sudo useradd -a -g pulse-access user` (replace user by either `pi`, `snapclient` or `_snapclient`, I'm unsure) which allows the user to access the system pulseaudio instance.
+
+sudo apt-get install libatlas-base-dev ffmpeg
